@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux'
-import userReducer from './users.js'
+import userReducer from './users'
 import thunkMiddleware from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 
