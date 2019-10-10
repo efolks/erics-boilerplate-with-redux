@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const db = require('./db')
 const morgan = require('morgan')
 const path = require('path')
 const bodyParser = require('body-parser')
@@ -24,6 +25,11 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).send(err.message || 'Internal server error.')
 })
 
-app.listen(port, () => {
-    console.log(`Server listening on Port ${port}`)
-})
+async function startServer(){
+    await db.sync({force: true})
+    app.listen(port, () => {
+        console.log(`Server listening on Port ${port}`)
+    })
+}
+
+startServer()
