@@ -9,12 +9,30 @@ const session = require('express-session')
 const SequelizeStore = require('connect-session-sequelize')(session.Store)
 const sessionStore = new SequelizeStore({ db })
 const passport = require('passport')
+const { User } = require('./db/models')
+
+passport.serializeUser((user, done) => {
+    try {
+      done(null, user.id);
+    } catch (err) {
+      done(err);
+    }
+  });
+  
+  passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findByPk(id)
+        done(null, user)
+      } catch (err) {
+        done(err)
+      }
+  });
 
 app.use(morgan('combined'))
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}))
 
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'public')))
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'a wildly insecure secret',
@@ -22,6 +40,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false
   }));
+
+app.use(passport.initialize())
+app.use(passport.session())
 
 app.use('/api', require('./apiRoutes'))
 
